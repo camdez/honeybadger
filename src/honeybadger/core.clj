@@ -24,6 +24,14 @@
 (defn- underscore [key]
   (-> key name (str/replace "-" "_")))
 
+(defn- deep-merge
+  "Recursively merge maps. At each level, if there are any non-map
+  vals, the last value (of any type) is used."
+  [& vals]
+  (if (every? map? vals)
+    (apply merge-with deep-merge vals)
+    (last vals)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def hostname
@@ -59,6 +67,23 @@
    :class (.getName (.getClass ex))
    :backtrace (format-stacktrace (.getStackTrace ex))})
 
+(defn- error-patch [msg-or-ex]
+  {:error (notice-error msg-or-ex)})
+
+(defn- metadata-patch [{:keys [tags context component action request]}]
+  (let [{:keys [method url params session]} request]
+    {:error   {:tags tags}
+     :request {:url url
+               :component component
+               :action action
+               :params params
+               :context (or context {})  ; diplays differently if nil
+               :session session
+               :cgi-data (some->> method
+                                  name
+                                  str/upper-case
+                                  (array-map "REQUEST_METHOD"))}}))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn- post-notice [n api-key]
@@ -75,7 +100,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Public
 
-(defn notify [{:keys [api-key env]} msg-or-ex]
-  (-> (base-notice env)
-      (assoc :error (notice-error msg-or-ex))
-      (post-notice api-key)))
+(defn notify
+  ([config msg-or-ex]
+   (notify config msg-or-ex {}))
+  ([{:keys [api-key env]} msg-or-ex metadata]
+   (-> (base-notice env)
+       (deep-merge (error-patch msg-or-ex)
+                   (metadata-patch metadata))
+       (post-notice api-key))))

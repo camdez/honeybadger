@@ -42,6 +42,29 @@ The library only has one public endpoint: `notify`.  You can pass
 ;; https://www.honeybadger.io/notice/12345678-669c-4178-b456-be3d0feb1551
 ```
 
+The optional third parameter to `notify` can be used to pass all
+manner of additional Honeybadger metadata. The following example shows
+all possible metadata values:
+
+```clj
+(hb/notify hb-config
+           (Exception. "Vapor Lock")
+           {:tags [:serious :business]
+            :component "robot-brain" ; ~= a Rails controller
+            :action "think"          ; ~= a Rails action
+            :context {:name "Winston"
+                      :power 42
+                      :grease 12}
+            :request {:method :get
+                      :url "http://camdez.com"
+                      :params {"robot" "true"}
+                      :session {"session_id" "d34dc0d3"}}})
+```
+
+All metadata is optional, so pick and choose what is useful for your
+project. Keys and tags can be strings or keywords.  `:context` and
+`:request` supported nested values.
+
 ## Motivation
 
 I got a lot of mileage out of [ring-honeybadger][] but ultimately
