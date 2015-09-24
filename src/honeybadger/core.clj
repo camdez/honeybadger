@@ -4,7 +4,8 @@
             [clj-stacktrace.core :as st]
             [clj-stacktrace.repl :as st-repl]
             [clojure.data.json :as json]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [manifold.deferred :as d]))
 
 (def notifier-name
   "Honeybadger for Clojure")
@@ -61,15 +62,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn- post-notice [n api-key]
-  (-> @(http/post api-endpoint
-                  {:accept :json
-                   :content-type :json
-                   :headers {"X-API-Key" api-key}
-                   :body (json/write-str n :key-fn underscore)})
-      :body
-      bs/to-string
-      (json/read-str :key-fn keyword)
-      :id))
+  (d/chain (http/post api-endpoint
+                      {:accept :json
+                       :content-type :json
+                       :headers {"X-API-Key" api-key}
+                       :body (json/write-str n :key-fn underscore)})
+    :body
+    bs/to-string
+    #(json/read-str % :key-fn keyword)
+    :id))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Public

@@ -20,9 +20,27 @@ The library only has one public endpoint: `notify`.  You can pass
 ```
 
 - `api-key` is the only required entry in the configuration map.
-- `notify` returns the ID (`String`) of the newly-created Honeybadger
-  fault in case you want to log it, pass it to another system, or
-  display it to your users as an incident identifier.
+- `notify` returns a [Manifold][] *deferred* wrapping the ID
+  (`String`) of the newly-created Honeybadger fault. This means that
+  the call returns immediately, not blocking your (e.g.) web server
+  thread.
+- Honeybadger fault IDs can be handy--log them, pass them to other
+  systems, or display them to your users as incident identifiers they
+  can send to your support team. Manifold offers ways of receiving
+  this data asynchronously, but for a simple (synchronous) approach,
+  simply [`deref`][deref] the return value:
+
+```clj
+(try
+  ("kaboom") ; Strings aren't functions
+  (catch Exception e
+    (let [hb-id @(hb/notify hb-config e)]
+      (println (str "Exception! Learn more here:\n"
+                    "https://www.honeybadger.io/notice/" hb-id)))))
+;; (Output)
+;; Exception! Learn more here:
+;; https://www.honeybadger.io/notice/12345678-669c-4178-b456-be3d0feb1551
+```
 
 ## Motivation
 
@@ -36,10 +54,11 @@ Features differentiating this library from (some of) the alternatives:
 
 - A la carte Honeybadger reporting.
 - Ability to report (informational) non-exceptions.
-- No implicit assumptions about what to report (for instance because
-  of environment or exception type).
+- No implicit suppression by environment or exception type.
 - No deprecation warnings.
 - Honeybadger fault IDs are returned.
+- Asynchronous reporting (doesn't block the calling thread while the
+  exception is being reported).
 
 ## License
 
@@ -51,3 +70,5 @@ Distributed under the MIT License.
 [throwable]: https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html
 [exception]: https://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html
 [ring-honeybadger]: https://github.com/weavejester/ring-honeybadger
+[manifold]: https://github.com/ztellman/manifold
+[deref]: https://clojuredocs.org/clojure.core/deref
