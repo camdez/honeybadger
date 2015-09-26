@@ -1,5 +1,7 @@
 # honeybadger
 
+[![Clojars Project][clojars-badge]][clojars-honeybadger]
+
 A Clojure library for reporting errors to [Honeybadger][].
 
 ## Usage
@@ -89,6 +91,8 @@ Copyright © 2015 Cameron Desautels
 
 Distributed under the MIT License.
 
+[clojars-badge]: http://clojars.org/camdez/honeybadger/latest-version.svg
+[clojars-honeybadger]: http://clojars.org/camdez/honeybadger
 [honeybadger]: https://honeybadger.io
 [throwable]: https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html
 [exception]: https://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html
