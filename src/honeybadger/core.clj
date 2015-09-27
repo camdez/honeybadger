@@ -5,7 +5,14 @@
             [clj-stacktrace.repl :as st-repl]
             [clojure.data.json :as json]
             [clojure.string :as str]
-            [manifold.deferred :as d]))
+            [clojure.walk :refer [keywordize-keys]]
+            [honeybadger.schemas :refer [Event EventFilter]]
+            [honeybadger.utils :refer [deep-merge
+                                       some-chain
+                                       underscore
+                                       update-contained-in]]
+            [manifold.deferred :as d]
+            [schema.core :as s]))
 
 (def notifier-name
   "Honeybadger for Clojure")
@@ -18,19 +25,6 @@
 
 (def api-endpoint
   "https://api.honeybadger.io/v1/notices")
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn- underscore [key]
-  (-> key name (str/replace "-" "_")))
-
-(defn- deep-merge
-  "Recursively merge maps. At each level, if there are any non-map
-  vals, the last value (of any type) is used."
-  [& vals]
-  (if (every? map? vals)
-    (apply merge-with deep-merge vals)
-    (last vals)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -98,13 +92,46 @@
     :id))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(s/defn ^:private normalize-event :- Event
+  "Normalize data to a standard form that user-provided filters can
+  make sense of and transform."
+  [api-key env msg-or-ex metadata]
+  (-> {:api-key   api-key
+       :env       (keyword env)
+       :exception msg-or-ex
+       :metadata  metadata}
+      keywordize-keys
+      (update-contained-in [:metadata :tags] #(set (map keyword %)))
+      (update-contained-in [:metadata :request :method] keyword)
+      (->> (deep-merge {:metadata {:tags #{}
+                                   :request {}
+                                   :context {}
+                                   :component nil
+                                   :action nil}}))))
+
+(s/defn ^:private apply-filters :- (s/maybe Event)
+  "Successively apply all transformation functions in `filters` to
+  exception details, halting the chain if any filter returns nil."
+  [filters :- [EventFilter]
+   event   :- Event]
+  (some-chain event filters))
+
+(s/defn ^:private event->notice
+  "Convert data to the appropriate form for the Honeybadger API."
+  [{:keys [env exception metadata]} :- Event]
+  (deep-merge (base-notice env)
+              (error-patch exception)
+              (metadata-patch metadata)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Public
 
 (defn notify
   ([config msg-or-ex]
    (notify config msg-or-ex {}))
-  ([{:keys [api-key env]} msg-or-ex metadata]
-   (-> (base-notice env)
-       (deep-merge (error-patch msg-or-ex)
-                   (metadata-patch metadata))
-       (post-notice api-key))))
+  ([{:keys [api-key env filters]} msg-or-ex metadata]
+   (if-let [e (->> (normalize-event api-key env msg-or-ex metadata)
+                   (apply-filters filters))]
+     (post-notice (event->notice e) api-key)
+     (d/success-deferred nil))))
