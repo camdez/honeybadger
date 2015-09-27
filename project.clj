@@ -1,4 +1,4 @@
-(defproject camdez/honeybadger "0.1.0"
+(defproject camdez/honeybadger "0.2.0-SNAPSHOT"
   :description "Clojure library for reporting errors to honeybadger.io"
   :url "https://github.com/camdez/honeybadger"
   :license {:name "MIT License"
