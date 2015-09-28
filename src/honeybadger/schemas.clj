@@ -15,4 +15,5 @@
                :component (s/maybe s/Str)
                :action    (s/maybe s/Str)}})
 
-(def EventFilter (s/=> (s/maybe Event) [Event]))
+(def EventFilter    (s/=> (s/maybe Event) [Event]))
+(def EventPredicate (s/=> s/Any [Event]))

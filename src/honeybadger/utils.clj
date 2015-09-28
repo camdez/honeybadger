@@ -12,6 +12,11 @@
     (apply merge-with deep-merge vals)
     (last vals)))
 
+(defn settify [s]
+  (if (coll? s)
+    (set s)
+    #{s}))
+
 (defn some-chain
   "Successively applies functions `fs` from left to right (as
   with `(apply comp (reverse fs))`), halting the chain and returning
