@@ -67,7 +67,7 @@ all possible metadata values:
             :request {:method :get
                       :url "http://camdez.com"
                       :params {"robot" "true"}
-                      :session {"session_id" "d34dc0d3"}}})
+                      :session {"session-id" "d34dc0d3"}}})
 ```
 
 All metadata is optional, so pick and choose what is useful for your
@@ -96,8 +96,8 @@ combinators in `honeybadger.filter`:
 (def hb-config
   {:api-key "d34db33f"
    :env     "development"
-   :filters [(hbf/only   (hbd/env? :production))
-             (hbf/except (hbd/instance? ArithmeticException))
+   :filters [(hbf/only   (hbf/env? :production))
+             (hbf/except (hbf/instance? ArithmeticException))
              (hbf/obscure-params [[:config :password]])]})
 
 (hb/notify hb-config "dag, yo")
