@@ -104,6 +104,8 @@
       keywordize-keys
       (update-contained-in [:metadata :tags] #(set (map keyword %)))
       (update-contained-in [:metadata :request :method] keyword)
+      (update-contained-in [:metadata :request :params]  #(or % {}))
+      (update-contained-in [:metadata :request :session] #(or % {}))
       (->> (deep-merge {:metadata {:tags #{}
                                    :request {}
                                    :context {}
