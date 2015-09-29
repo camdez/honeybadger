@@ -28,6 +28,27 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn- format-stacktrace-elem [{:keys [line file] :as elem}]
+  {:number line
+   :file   file
+   :method (st-repl/method-str elem)})
+
+(defn- format-stacktrace [st]
+  (->> st st/parse-trace-elems (map format-stacktrace-elem)))
+
+(defprotocol Notifiable
+  (error-map [this]))
+
+(extend-protocol Notifiable
+  String
+    (error-map [this] {:message this})
+  Throwable
+    (error-map [this] {:message (.getMessage this)
+                       :class (.getName (.getClass this))
+                       :backtrace (format-stacktrace (.getStackTrace this))}))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (def hostname
   (.getHostName (java.net.InetAddress/getLocalHost)))
 
@@ -43,26 +64,8 @@
               :environment-name environment
               :hostname hostname}})
 
-(defn- format-stacktrace-elem [{:keys [line file] :as elem}]
-  {:number line
-   :file   file
-   :method (st-repl/method-str elem)})
-
-(defn- format-stacktrace [st]
-  (->> st st/parse-trace-elems (map format-stacktrace-elem)))
-
-(defmulti  notice-error class)
-(defmethod notice-error String
-  [message]
-  {:message message})
-(defmethod notice-error Throwable
-  [ex]
-  {:message (.getMessage ex)
-   :class (.getName (.getClass ex))
-   :backtrace (format-stacktrace (.getStackTrace ex))})
-
-(defn- error-patch [msg-or-ex]
-  {:error (notice-error msg-or-ex)})
+(defn- error-patch [notifiable]
+  {:error (error-map notifiable)})
 
 (defn- metadata-patch [{:keys [tags context component action request]}]
   (let [{:keys [method url params session]} request]
