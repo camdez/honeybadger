@@ -181,11 +181,12 @@ dislike that it's bound to Ring when the underlying service is not.
 
 Features differentiating this library from (some of) the alternatives:
 
-- A la carte Honeybadger reporting.
+- À la carte Honeybadger reporting.
 - Ability to report (informational) non-exceptions.
 - No implicit suppression by environment or exception type.
 - No deprecation warnings.
 - Honeybadger fault IDs are returned.
+- Set of reportable objects open to extension (by protocol).
 - Supports all known (to me) Honeybadger attributes.
 - Asynchronous reporting (doesn't block the calling thread while the
   exception is being reported).
