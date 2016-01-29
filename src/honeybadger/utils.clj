@@ -28,7 +28,10 @@
     x))
 
 (defn underscore [key]
-  (-> key name (str/replace "-" "_")))
+  (-> (if (instance? clojure.lang.Named key)
+        (name key)
+        (str key))
+      (str/replace "-" "_")))
 
 (defn update-contained-in
   "Like `update-in` but `f` is only applied if map entry
