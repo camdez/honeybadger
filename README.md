@@ -73,7 +73,7 @@ all possible metadata values:
 All metadata is optional, so pick and choose what is useful for your
 project. Keys and tags can be strings or keywords.  `:context` and
 `:request` supported nested values.  If you're working with Ring, use
-the corresponding [ring-honeybadger](camdez-rh) library and the
+the corresponding [ring-honeybadger][camdez-rh] library and the
 `:request` metadata will be populated for you.
 
 ### Filters
