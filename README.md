@@ -28,7 +28,7 @@ The library only has one public endpoint: `notify`.  You can pass
   Honeybadger. Because a deferred is used, the call returns
   immediately, not blocking your (e.g.) web server thread. This comes
   with
-  [the typical Clojure caveats about exceptions thrown on background threads](background-exceptions),
+  [the typical Clojure caveats about exceptions thrown on background threads][background-exceptions],
   so I strongly recommend dereferencing these calls on the main thread
   unless / until you have an async error handling plan in place.
 - Honeybadger fault IDs can be handy--log them, pass them to other
