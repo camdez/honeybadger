@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## 0.2.2 - 2016-04-15
 
 - Fixed: errors compiling on Clojure 1.8 (due to Aleph version).
 
