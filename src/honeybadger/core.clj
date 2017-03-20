@@ -68,7 +68,7 @@
   {:error (error-map notifiable)})
 
 (defn- metadata-patch [{:keys [tags context component action request]}]
-  (let [{:keys [method url params session]} request]
+  (let [{:keys [method url params session cgi-data]} request]
     {:error   {:tags tags}
      :request {:url url
                :component component
@@ -76,10 +76,11 @@
                :params params
                :context (or context {})  ; diplays differently if nil
                :session session
-               :cgi-data (some->> method
-                                  name
-                                  str/upper-case
-                                  (array-map "REQUEST_METHOD"))}}))
+               :cgi-data (merge (some->> method
+                                         name
+                                         str/upper-case
+                                         (array-map "REQUEST_METHOD"))
+                                cgi-data)}}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
