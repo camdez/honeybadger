@@ -43,7 +43,9 @@
   String
     (error-map [this] {:message this})
   Throwable
-    (error-map [this] {:message (.getMessage this)
+    (error-map [this] {:message (str (.getMessage this)
+                                     (when-let [info (ex-data this)]
+                                       (str " (ex-info: " (pr-str info) ")")))
                        :class (.getName (.getClass this))
                        :backtrace (format-stacktrace (.getStackTrace this))}))
 
