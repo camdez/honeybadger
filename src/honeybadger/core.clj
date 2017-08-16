@@ -18,7 +18,7 @@
   "Honeybadger for Clojure")
 
 (def notifier-version
-  "0.3.0")
+  "0.3.1-SNAPSHOT")
 
 (def notifier-homepage
   "https://github.com/camdez/honeybadger")
