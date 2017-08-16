@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.3.0 - 2017-08-17
+
+- Invoke `str` on `Throwable` instead of `.getMessage` -- most
+  importantly this means that data on `ExceptionInfo` instances will
+  be reported as part of the Honeybadger "message".
+
 ## 0.2.2 - 2016-04-15
 
 - Fixed: errors compiling on Clojure 1.8 (due to Aleph version).
