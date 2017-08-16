@@ -4,13 +4,13 @@
             [clj-stacktrace.core :as st]
             [clj-stacktrace.repl :as st-repl]
             [clojure.data.json :as json]
+            [clojure.java.io :as io]
             [clojure.string :as str]
             [clojure.walk :refer [keywordize-keys]]
             [honeybadger.schemas :refer [Event EventFilter]]
-            [honeybadger.utils :refer [deep-merge
-                                       some-chain
-                                       underscore
-                                       update-contained-in]]
+            [honeybadger.utils
+             :refer
+             [deep-merge some-chain underscore update-contained-in]]
             [manifold.deferred :as d]
             [schema.core :as s]))
 
@@ -53,7 +53,7 @@
   (.getHostName (java.net.InetAddress/getLocalHost)))
 
 (def project-root
-  (.getCanonicalPath (clojure.java.io/file ".")))
+  (.getCanonicalPath (io/file ".")))
 
 (defn- base-notice [environment]
   {:notifier {:name notifier-name
