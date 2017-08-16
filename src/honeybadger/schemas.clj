@@ -11,6 +11,7 @@
                            (s/optional-key :url)     s/Str
                            (s/optional-key :params)  {s/Keyword s/Any}
                            (s/optional-key :session) {s/Keyword s/Any}}
+               :cgi-data  {s/Keyword s/Any}
                :context   {s/Keyword s/Any}
                :component (s/maybe s/Str)
                :action    (s/maybe s/Str)}})

@@ -67,8 +67,10 @@
 (defn- error-patch [notifiable]
   {:error (error-map notifiable)})
 
-(defn- metadata-patch [{:keys [tags context component action request]}]
-  (let [{:keys [method url params session]} request]
+(defn- metadata-patch [{:keys [tags cgi-data component context action request]}]
+  (let [{:keys [method url params session]} request
+        cgi-data' (cond-> cgi-data
+                    method (assoc "REQUEST_METHOD" (str/upper-case (name method))))]
     {:error   {:tags tags}
      :request {:url url
                :component component
@@ -76,10 +78,7 @@
                :params params
                :context (or context {})  ; diplays differently if nil
                :session session
-               :cgi-data (some->> method
-                                  name
-                                  str/upper-case
-                                  (array-map "REQUEST_METHOD"))}}))
+               :cgi-data cgi-data'}}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -109,7 +108,8 @@
       (update-contained-in [:metadata :request :method] keyword)
       (update-contained-in [:metadata :request :params]  #(or % {}))
       (update-contained-in [:metadata :request :session] #(or % {}))
-      (->> (deep-merge {:metadata {:tags #{}
+      (->> (deep-merge {:metadata {:cgi-data {}
+                                   :tags #{}
                                    :request {}
                                    :context {}
                                    :component nil

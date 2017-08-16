@@ -59,6 +59,8 @@ all possible metadata values:
 (hb/notify hb-config
            (Exception. "Vapor Lock")
            {:tags [:serious :business]
+            :cgi-data {"SERVER_NAME" "crywolf.dev"
+                       "SERVER_PORT" "80"}
             :component "robot-brain" ; ~= a Rails controller
             :action "think"          ; ~= a Rails action
             :context {:name "Winston"
