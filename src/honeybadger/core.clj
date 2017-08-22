@@ -28,6 +28,13 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn ex-chain
+  "Return all exceptions in the exception chain."
+  [e]
+  (->> e
+       (iterate #(when (some? %) (.getCause %)))
+       (take-while some?)))
+
 (defn- format-stacktrace-elem [{:keys [line file] :as elem}]
   {:number line
    :file   file
@@ -36,16 +43,28 @@
 (defn- format-stacktrace [st]
   (->> st st/parse-trace-elems (map format-stacktrace-elem)))
 
+(defn error-map-no-causes
+  "Return a map representing an HB error without causes.
+
+  See http://docs.honeybadger.io/guides/api.html#sample-payload for the error
+  schema."
+  [^Throwable t]
+  {:message (str t)
+   :class (.. t getClass getName)
+   :backtrace (format-stacktrace (.getStackTrace t))})
+
 (defprotocol Notifiable
   (error-map [this]))
 
 (extend-protocol Notifiable
   String
-    (error-map [this] {:message this})
+  (error-map [this] {:message this})
+
   Throwable
-    (error-map [this] {:message (str this)
-                       :class (.getName (.getClass this))
-                       :backtrace (format-stacktrace (.getStackTrace this))}))
+  (error-map [this]
+    (let [exs (rest (ex-chain this))]
+      (assoc (error-map-no-causes this)
+             :causes (map error-map-no-causes exs)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -123,7 +142,9 @@
   (some-chain event filters))
 
 (s/defn ^:private event->notice
-  "Convert data to the appropriate form for the Honeybadger API."
+  "Convert data to the appropriate form for the Honeybadger API.
+
+   If the exception has a cause, all causes in the chain are sent to HB."
   [{:keys [env exception metadata]} :- Event]
   (deep-merge (base-notice env)
               (error-patch exception)
