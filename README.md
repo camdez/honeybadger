@@ -1,4 +1,4 @@
-# honeybadger
+# honeybadger [![CircleCI][circleci-badge]][circleci-honeybadger]
 
 [![Clojars Project][clojars-badge]][clojars-honeybadger]
 
@@ -204,6 +204,8 @@ Distributed under the MIT License.
 
 [clojars-badge]: http://clojars.org/camdez/honeybadger/latest-version.svg
 [clojars-honeybadger]: http://clojars.org/camdez/honeybadger
+[circleci-badge]: https://circleci.com/gh/camdez/honeybadger.svg?style=shield
+[circleci-honeybadger]: https://circleci.com/gh/camdez/honeybadger
 [honeybadger]: https://honeybadger.io
 [throwable]: https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html
 [exception]: https://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html
