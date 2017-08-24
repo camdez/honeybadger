@@ -1,12 +1,12 @@
 (ns honeybadger.core-test
   (:require [clojure.test :refer :all]
-            [honeybadger.core :refer :all]))
+            [honeybadger.core :as sut]))
 
-(deftest ex-chain-test
+(deftest ex-chain-builds-sequence-of-exception-causes
   (let [e (->> (Exception. "C")
                (Exception. "B")
                (Exception. "A"))
-        [a b c] (ex-chain e)]
-    (is (= e a))
-    (is (= (.getCause e) b))
-    (is (= (.. e getCause getCause) c))))
+        [a b c] (sut/ex-chain e)]
+    (is (= a e))
+    (is (= b (.getCause e)))
+    (is (= c (.. e getCause getCause)))))

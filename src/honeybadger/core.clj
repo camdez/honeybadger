@@ -59,9 +59,8 @@
 
   Throwable
   (error-map [this]
-    (let [exs (rest (ex-chain this))]
-      (assoc (error-map-no-causes this)
-             :causes (map error-map-no-causes exs)))))
+    (let [[final & causes] (->> this ex-chain (map error-map-no-causes))]
+      (assoc final :causes causes))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
