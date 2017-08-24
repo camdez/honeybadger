@@ -19,21 +19,21 @@ The library only has one public endpoint: `notify`.  You can pass
 
 (hb/notify hb-config "Something happened")
 (hb/notify hb-config (Exception. "Things ain't good"))
+(hb/notify hb-config (ex-info "99 problems" {:yet "Clojure isn't one of them"}))
 ```
 
-- `api-key` is the only required entry in the configuration map.
-- `notify` returns a [Manifold][] *deferred* wrapping the ID
-  (`String`) of the newly-created Honeybadger fault--or `nil` if a
-  filter (see below) caused the data not to be sent to
-  Honeybadger. Because a deferred is used, the call returns
-  immediately, not blocking your (e.g.) web server thread. This comes
-  with
-  [the typical Clojure caveats about exceptions thrown on background threads][background-exceptions],
+- `:api-key` is the only required entry in the configuration map.
+- `notify` returns a [Manifold deferred][] wrapping the ID (`String`)
+  of the newly-created Honeybadger fault--or `nil` if a filter (see
+  below) caused the data not to be sent to Honeybadger. Because a
+  deferred is used, the call returns immediately, not blocking your
+  (e.g., web server) thread. This comes with the typical
+  [Clojure caveats about exceptions thrown on background threads][background-exceptions],
   so I strongly recommend dereferencing these calls on the main thread
   unless / until you have an async error handling plan in place.
 - Honeybadger fault IDs can be handy--log them, pass them to other
   systems, or display them to your users as incident identifiers they
-  can send to your support team. Manifold offers ways of receiving
+  can send to your support team. [Manifold][] offers ways of receiving
   this data asynchronously, but for a simple (synchronous) approach,
   simply [`deref`][deref] the return value:
 
@@ -72,7 +72,7 @@ all possible metadata values:
 
 All metadata is optional, so pick and choose what is useful for your
 project. Keys and tags can be strings or keywords.  `:context` and
-`:request` supported nested values.  If you're working with Ring, use
+`:request` support nested values.  If you're working with Ring, use
 the corresponding [ring-honeybadger][camdez-rh] library and the
 `:request` metadata will be populated for you.
 
@@ -83,7 +83,7 @@ sequence of functions which will be invoked with all key details (viz.
 exception + configuration) prior to reporting to Honeybadger. These
 functions can be used to transform the data in arbitrary ways, or they
 can return `nil`, halting the function chain and indicating that
-nothing should be reported to Honeybadger.
+nothing should be reported.
 
 For maximum flexibility we can provide a custom function, but we can
 handle many common cases with the preexisting filters / filter
@@ -195,10 +195,12 @@ Features differentiating this library from (some of) the alternatives:
 - Helpers for common filter / transformation operations
   (e.g. filtering by environment / exception class, redacting of
   sensitive parameters).
+- Exception cause chain reported.
+- `ExceptionInfo` details reported.
 
 ## License
 
-Copyright © 2015 Cameron Desautels
+Copyright © 2017 Cameron Desautels
 
 Distributed under the MIT License.
 
@@ -212,6 +214,7 @@ Distributed under the MIT License.
 [weavejester-rh]: https://github.com/weavejester/ring-honeybadger
 [camdez-rh]: https://github.com/camdez/ring-honeybadger
 [manifold]: https://github.com/ztellman/manifold
+[manifold deferred]: https://github.com/ztellman/manifold#deferreds
 [deref]: https://clojuredocs.org/clojure.core/deref
 [schema]: https://github.com/Prismatic/schema
 [background-exceptions]: http://stuartsierra.com/2015/05/27/clojure-uncaught-exceptions
