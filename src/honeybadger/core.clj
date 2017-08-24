@@ -44,10 +44,7 @@
   (->> st st/parse-trace-elems (map format-stacktrace-elem)))
 
 (defn error-map-no-causes
-  "Return a map representing an HB error without causes.
-
-  See http://docs.honeybadger.io/guides/api.html#sample-payload for the error
-  schema."
+  "Return a map representing a Honeybadger error without causes."
   [^Throwable t]
   {:message (str t)
    :class (.. t getClass getName)
@@ -144,7 +141,8 @@
 (s/defn ^:private event->notice
   "Convert data to the appropriate form for the Honeybadger API.
 
-   If the exception has a cause, all causes in the chain are sent to HB."
+  See http://docs.honeybadger.io/guides/api.html#sample-payload for
+  the error schema."
   [{:keys [env exception metadata]} :- Event]
   (deep-merge (base-notice env)
               (error-patch exception)
