@@ -89,7 +89,7 @@
                :component component
                :action action
                :params params
-               :context (or context {})  ; diplays differently if nil
+               :context (or context {}) ; displays differently if nil
                :session session
                :cgi-data (some->> method
                                   name
