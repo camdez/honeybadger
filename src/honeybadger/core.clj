@@ -28,7 +28,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn ex-chain
+(defn- ex-chain
   "Return all exceptions in the exception chain."
   [e]
   (->> e
@@ -43,7 +43,7 @@
 (defn- format-stacktrace [st]
   (->> st st/parse-trace-elems (map format-stacktrace-elem)))
 
-(defn error-map-no-causes
+(defn- error-map-no-causes
   "Return a map representing a Honeybadger error without causes."
   [^Throwable t]
   {:message (str t)
