@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.4.0 - 2017-08-27
+
+- Report exception cause chain.
+- Continuous integration with Circle CI.
+
 ## 0.3.0 - 2017-08-17
 
 - Invoke `str` on `Throwable` instead of `.getMessage` -- most
