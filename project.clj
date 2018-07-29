@@ -8,5 +8,6 @@
                  [prismatic/schema "1.1.9"]
                  [org.clojure/clojure "1.9.0"]
                  [org.clojure/data.json "0.2.6"]]
+  :deploy-repositories [["releases" :clojars]]
   :profiles {:dev {:injections [(require 'schema.core)
                                 (schema.core/set-fn-validation! true)]}})
